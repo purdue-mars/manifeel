@@ -1,0 +1,343 @@
+power_3prongs:
+    power_3prongs_plug:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_plug'
+        diameter: 0.003988
+        length: 0.050
+        density: 8000.0 
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.004
+    power_3prongs_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_socket'
+        diameter: 0.0041
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+power_2prongs_shape1:
+    power_2prongs_shape1_plug:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_2prongs_shape1_plug'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    power_2prongs_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_2prongs_socket'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+power_2prongs_shape2:
+    power_2prongs_shape2_plug:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_2prongs_shape2_plug'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    power_2prongs_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_2prongs_socket'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+power_2prongs_shape3:
+    power_2prongs_shape3_plug:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_2prongs_shape3_plug'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    power_2prongs_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_2prongs_socket'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+USB_plug:
+    USB_plug:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_plug'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    USB_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_socket'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+USB_plug1:
+    USB_plug_shape1:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_plug_shape1'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    USB_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_socket'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+USB_plug2:
+    USB_plug_shape2:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_plug_shape2'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    USB_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_socket'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+USB_plug3:
+    USB_plug_shape3:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_plug_shape3'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    USB_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'USB_socket'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+pick_in_box_battery:
+    item:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box_battery'
+        diameter: 0.007986
+        length: 0.050
+        density: 10000.0  #8000.0
+        friction: 10.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    box:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box2'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+pick_in_box_peg:
+    item:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box_rectangular_peg_16mm'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    box:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box1'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+pick_in_box_peg_fea:
+    item:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box_rectangular_peg_16mm_feature'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    box:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box1'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+        
+pick_in_box_peg_fea_text:
+    item:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box_rextangular_peg_16mm_feature_text'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    box:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box1'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+pick_in_box_item1:
+    item:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box_power_socket'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    box:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box1'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+pick_in_box_item2:
+    item:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box_peg_round_hole_16mm'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    box:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box1'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+pick_in_box_item3:
+    item:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box_gear_large'
+        diameter: 0.007986
+        length: 0.050
+        density: 8000.0
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.008
+    box:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'box1'
+        diameter: 0.0081
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+nut:
+    round_peg_16mm_loose:
+        urdf_par_dir: 'factory'
+        urdf_path: 'factory_nut_m20_tight'
+        diameter: 0.0125983
+        length: 0.041
+        density: 8000.0
+        friction: 0.5
+    placement_pad:
+        urdf_par_dir: 'factory'
+        urdf_path: 'factory_bolt_m20_tight' 
+        diameter: 0.016
+        height: 0.0125
+        base_plate_height: 0.0
+        density: 8000.0
+        friction: 0.5
+
+gear_with_handle:
+    power_3prongs_plug:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'gear_with_handle_medium'
+        # urdf_path: 'industreal_gear_medium'
+        diameter: 0.003988
+        length: 0.050
+        density: 8000.0 
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.004
+    power_3prongs_socket:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'power_socket'
+        diameter: 0.0041
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+classfication_ball:
+    golf_ball:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'ball_classi'
+        diameter: 0.003988
+        length: 0.050
+        density: 8000.0 
+        friction: 1.0
+        grasp_offset: 0.04
+        plug_width: 0.004
+    ball_holder:
+        urdf_par_dir: 'industreal'
+        urdf_path: 'industreal_round_peg_16mm'
+        diameter: 0.0041
+        height: 0.028
+        depth: 0.023
+        density: 8000.0
+        friction: 0.5
+
+# industreal_round_peg_16mm
+# ball_classi

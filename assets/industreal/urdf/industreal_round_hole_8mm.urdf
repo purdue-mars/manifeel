@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="industreal_tray_insert_round_peg_8mm">
+    <link name="industreal_tray_insert_round_peg_8mm">
+        <visual>
+            <geometry>
+                <!-- <mesh filename="../mesh/industreal_pegs/industreal_tray_insert_round_peg_8mm.obj"/> -->
+                <mesh filename="../mesh/industreal_gears/industreal_gear_base.obj"/>
+                <!-- <mesh filename="/home/quan/Projects/manipulation/IsaacGymEnvs/assets/factory/mesh/factory_gears/factory_gear_base_loose_space_5e-4_subdiv_4x.obj"/> -->
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <!-- <mesh filename="../mesh/industreal_pegs/industreal_tray_insert_round_peg_8mm.obj"/> -->
+                <mesh filename="../mesh/industreal_gears/industreal_gear_base.obj"/>
+                <!-- <mesh filename="/home/quan/Projects/manipulation/IsaacGymEnvs/assets/factory/mesh/factory_gears/factory_gear_base_loose_space_5e-4_subdiv_4x.obj"/> -->
+            </geometry>
+            <sdf resolution="64"/>
+        </collision>
+    </link>
+</robot>

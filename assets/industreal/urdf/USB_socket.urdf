@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot name="USB_socket">
+    <link name="USB_socket">
+        <visual>
+            <geometry>
+                <mesh filename="../mesh/TVB_mesh/USB_socket_1port.obj"/>                  
+            </geometry>
+            <material name="LightRed">
+                <color rgba="1 0.3 0.3 1"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="../mesh/TVB_mesh/USB_socket_1port.obj"/>                
+            </geometry>
+            <sdf resolution="128"/>
+        </collision>
+    </link>
+</robot>

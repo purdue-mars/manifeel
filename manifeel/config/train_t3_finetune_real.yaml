@@ -1,0 +1,199 @@
+defaults:
+  - _self_
+  - task: manifeel_real_visuotactile_dim224
+
+name: train_diffusion_unet_image
+_target_: manifeel.workspace.train_diffusion_unet_image_workspace.TrainDiffusionUnetImageWorkspace
+
+task_name: ${task.name}
+shape_meta: ${task.shape_meta}
+exp_name: "t3_finetune"
+
+dataset_path: data/ball_tuning_Apr20
+
+n_demo: ${task.dataset.max_train_episodes}
+horizon: 16
+n_obs_steps: 2
+n_action_steps: 8
+n_latency_steps: 0
+dataset_obs_steps: ${n_obs_steps}
+past_action_visible: False
+keypoint_visible_rate: 1.0
+
+patch_size: 16
+encoder_embed_dim: 768
+encoder_heads: 12
+pooling: "none"
+encoder_depth: 3
+trunk_depth: 9
+
+
+policy:
+  _target_: manifeel.policy.diffusion_t3_policy.DiffusionT3Policy
+
+  shape_meta:
+    # acceptable types: rgb, low_dim
+    obs:
+      camera_0:
+        shape: [3, 240, 320]
+        type: rgb
+      robot_eef_pose:
+        shape: [16]
+        type: low_dim
+    action: 
+      shape: [5]
+
+  tactile_emb_dim: 512
+  t3_encoder_embed_dim: ${encoder_embed_dim}
+  finetune: True
+  t3_encoder_path: representation_models/t3_medium/encoders/mini.pth
+  t3_trunk_path: representation_models/t3_medium/trunk.pth
+  t3_encoder:
+    _target_: t3.models.ViTEncoder
+    patch_size: ${patch_size}
+    embed_dim: ${encoder_embed_dim}
+    depth: ${encoder_depth}
+    num_heads: ${encoder_heads}
+    mlp_ratio: 4. 
+  shared_trunk:
+    _target_: t3.models.TransformerTrunk
+    embed_dim: ${encoder_embed_dim}
+    depth: ${trunk_depth}
+    num_heads: ${encoder_heads}
+    mlp_ratio: 4.
+    pooling_type: ${pooling}
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddim.DDIMScheduler
+    num_train_timesteps: 75
+    beta_start: 0.0001
+    beta_end: 0.02
+    # beta_schedule is important
+    # this is the best we found
+    beta_schedule: squaredcos_cap_v2
+    clip_sample: True
+    set_alpha_to_one: True
+    steps_offset: 0
+    prediction_type: epsilon # or sample
+  obs_encoder:
+    _target_: diffusion_policy.model.vision.multi_image_obs_encoder.MultiImageObsEncoder
+    shape_meta:
+      # acceptable types: rgb, low_dim
+      obs:
+        camera_0:
+          shape: [3, 240, 320]
+          type: rgb
+        robot_eef_pose:
+          shape: [16]
+          type: low_dim
+      action: 
+        shape: [5]
+    rgb_model:
+      _target_: diffusion_policy.model.vision.model_getter.get_resnet
+      name: resnet18
+      weights: null
+    resize_shape: null
+    crop_shape: null
+    # crop_shape: [210, 210]
+    # constant center crop
+    random_crop: True
+    use_group_norm: True
+    share_rgb_model: False
+    imagenet_norm: True
+
+  horizon: ${horizon}
+  n_action_steps: ${eval:'${n_action_steps}+${n_latency_steps}'}
+  n_obs_steps: ${n_obs_steps}
+  num_inference_steps: 10
+  # crop_shape: null
+  diffusion_step_embed_dim: 128
+  down_dims: [512, 1024, 2048]
+  kernel_size: 5
+  n_groups: 8
+  cond_predict_scale: True
+
+ema:
+  _target_: diffusion_policy.model.diffusion.ema_model.EMAModel
+  update_after_step: 0
+  inv_gamma: 1.0
+  power: 0.75
+  min_value: 0.0
+  max_value: 0.9999
+
+dataloader:
+  batch_size: 8 #64
+  num_workers: 3
+  shuffle: True
+  pin_memory: True
+  persistent_workers: False
+
+val_dataloader:
+  batch_size: 8 #64
+  num_workers: 1
+  shuffle: False
+  pin_memory: True
+  persistent_workers: False
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1.0e-4 #8.0e-5
+  betas: [0.95, 0.999]
+  eps: 1.0e-8
+  weight_decay: 1.0e-6
+
+training:
+  device: "cuda:0" # default: cuda:0
+  seed: 42
+  debug: False
+  resume: True
+  # optimization
+  lr_scheduler: cosine
+  lr_warmup_steps: 500
+  num_epochs: 500
+  gradient_accumulate_every: 1
+  # EMA destroys performance when used with BatchNorm
+  # replace BatchNorm with GroupNorm.
+  use_ema: True
+  # training loop control
+  # in epochs
+  rollout_every: 10000000 # default: 50
+  checkpoint_every: 1 # default: 50
+  val_every: 10000
+  sample_every: 10000 # default: 5
+  # steps per epoch
+  max_train_steps: null
+  max_val_steps: null
+  # misc
+  tqdm_interval_sec: 1.0
+
+  freeze_encoder: false
+
+logging:
+  project: diffusion_policy_debug
+  resume: True
+  mode: online
+  name: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}
+  tags: ["${name}", "${task_name}", "${exp_name}"]
+  id: null
+  group: null
+
+checkpoint:
+  topk:
+    monitor_key: train_loss
+    mode: min
+    k: 5
+    format_str: 'epoch={epoch:04d}-train_loss={train_loss:.3f}.ckpt'
+  save_last_ckpt: True
+  save_last_snapshot: False
+
+multi_run:
+  run_dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  wandb_name_base: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}
+
+hydra:
+  job:
+    override_dirname: ${name}
+  run:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  sweep:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+    subdir: ${hydra.job.num}

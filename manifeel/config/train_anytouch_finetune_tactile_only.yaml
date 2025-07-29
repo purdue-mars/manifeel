@@ -1,0 +1,185 @@
+defaults:
+  - _self_
+  - task: manifeel_visuotactile_dim224_adim7
+
+name: train_diffusion_unet_image
+_target_: manifeel.workspace.train_diffusion_unet_image_workspace.TrainDiffusionUnetImageWorkspace
+
+task_name: ${task.name}
+shape_meta: ${task.shape_meta}
+exp_name: "anytouch_finetune"
+
+dataset_path: data/tactile_sorting_Apr1
+isaacgym_cfg_name: "isaacgym_config_tactile_sorting.yaml"
+
+n_demo: ${task.dataset.max_train_episodes}
+horizon: 16
+n_obs_steps: &n_obs_steps 2
+n_action_steps: 8
+n_latency_steps: 0
+dataset_obs_steps: ${n_obs_steps}
+past_action_visible: False
+keypoint_visible_rate: 1.0
+obs_as_global_cond: True
+
+
+image_shape: &image_shape [3, 256, 256]
+encoder_embed_dim: 768
+use_same_patchemb: True
+pooling: cls
+
+policy:
+  _target_: manifeel.policy.diffusion_anytouch_policy.DiffusionAnyTouchPolicy
+
+  shape_meta:
+    # acceptable types: rgb, low_dim
+    obs:
+      state:
+        shape: [7]
+        type: low_dim
+    action:
+      shape: [7]
+
+  finetune: True
+  tactile_emb_dim: 512
+  use_same_patchemb: ${use_same_patchemb}
+  anytouch_encoder_embed_dim: ${encoder_embed_dim}
+  anytouch_encoder_path: representation_models/anytouch/checkpoint.pth
+  anytouch_encoder:
+    _target_: manifeel.model.anytouch.anytouch_encoder.AnyTouchEncoder
+    config_path: manifeel/model/anytouch/CLIP-ViT-L-14-DataComp.XL-s13B-b90K/config.json
+    num_frames: 1
+    tube_size: 1
+    pooling: ${pooling}
+    use_sensor_token: True
+    use_same_patchemb: ${use_same_patchemb}
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
+    num_train_timesteps: 100
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    variance_type: fixed_small # Yilun's paper uses fixed_small_log instead, but easy to cause Nan
+    clip_sample: True # required when predict_epsilon=False
+    prediction_type: epsilon # or sample
+  obs_encoder:
+    _target_: diffusion_policy.model.vision.multi_image_obs_encoder.MultiImageObsEncoder
+    shape_meta:
+      # acceptable types: rgb, low_dim
+      obs:
+        state:
+          shape: [7]
+          type: low_dim
+      action:
+        shape: [7]
+    rgb_model:
+      _target_: diffusion_policy.model.vision.model_getter.get_resnet
+      name: resnet18
+      weights: null
+    resize_shape: null
+    crop_shape: [230, 230]
+    # constant center crop
+    random_crop: True
+    use_group_norm: True
+    share_rgb_model: False
+    imagenet_norm: True
+
+  horizon: 16
+  n_action_steps: 8
+  n_obs_steps: 2
+  num_inference_steps: 100
+  diffusion_step_embed_dim: 128
+  down_dims: [512, 1024, 2048]
+  kernel_size: 5
+  n_groups: 8
+  cond_predict_scale: True
+
+
+ema:
+  _target_: diffusion_policy.model.diffusion.ema_model.EMAModel
+  update_after_step: 0
+  inv_gamma: 1.0
+  power: 0.75
+  min_value: 0.0
+  max_value: 0.9999
+
+dataloader:
+  batch_size: 8 
+  num_workers: 3
+  shuffle: True
+  pin_memory: True
+  persistent_workers: False
+
+val_dataloader:
+  batch_size: 8 
+  num_workers: 1
+  shuffle: False
+  pin_memory: True
+  persistent_workers: False
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1.0e-4
+  betas: [0.95, 0.999]
+  eps: 1.0e-8
+  weight_decay: 1.0e-6
+
+training:
+  device: "cuda:0" # default: cuda:0
+  seed: 42
+  debug: False
+  resume: True
+  # optimization
+  lr_scheduler: cosine
+  lr_warmup_steps: 500
+  num_epochs: ${eval:'int(50000 / ${n_demo})'}
+  gradient_accumulate_every: 1
+  # EMA destroys performance when used with BatchNorm
+  # replace BatchNorm with GroupNorm.
+  use_ema: True
+  # training loop control
+  # in epochs
+  rollout_every: 10 # default: 50
+  checkpoint_every: 1 # default: 50
+  val_every: 10000
+  sample_every: 10000 # default: 5
+  # steps per epoch
+  max_train_steps: null
+  max_val_steps: null
+  # misc
+  tqdm_interval_sec: 1.0
+
+  freeze_encoder: false
+
+logging:
+  project: anytouch_debug
+  resume: True
+  mode: online
+  name: ${now:%Y.%m.%d-%H.%M.%S}_anytouch_finetune_${training.seed}
+  tags: ["${name}", "${task_name}", "${exp_name}"]
+  id: null
+  group: null
+
+checkpoint:
+  topk:
+    monitor_key: train_loss
+    mode: min
+    k: 5
+    format_str: 'epoch={epoch:04d}-train_loss={train_loss:.3f}.ckpt'
+  save_last_ckpt: True
+  save_last_snapshot: False
+
+multi_run:
+  run_dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  wandb_name_base: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}
+
+hydra:
+  job:
+    override_dirname: ${name}
+  run:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+    # dir: data/outputs/2025.01.22/19.44.15_train_diffusion_unet_image_vistac_vision_tactile
+
+  sweep:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+    subdir: ${hydra.job.num}

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot name="industreal_round_peg_8mm">
+    <link name="industreal_round_peg_8mm">
+        <visual>
+            <geometry>
+                <mesh filename="../mesh/industreal_pegs/industreal_round_peg_8mm.obj"/>
+                <!-- <mesh filename="../mesh/industreal_gears/industreal_gear_base.obj"/> -->
+                <!-- <mesh filename="../mesh/TVB_mesh/new_middle_gear.obj"/> -->
+                <!-- <mesh filename="../mesh/TVB_mesh/car1.obj"/> -->
+                <!-- <mesh filename="../mesh/industreal_gears/industreal_gear_large.obj"/> -->
+                <!-- <mesh filename="/home/quan/Projects/manipulation/IsaacGymEnvs/assets/factory/mesh/factory_gears/factory_gear_large_space_5e-4.obj"/> -->
+            </geometry>
+            <material name="Blue">
+                <color rgba="0.3 0.3 1 1"/>
+                <!-- <color rgba="1 0.6 0.6 1"/> -->
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="../mesh/industreal_pegs/industreal_round_peg_8mm.obj"/>
+                <!-- <mesh filename="../mesh/industreal_gears/industreal_gear_base.obj"/> -->
+                <!-- <mesh filename="../mesh/TVB_mesh/new_middle_gear.obj"/> -->
+                <!-- <mesh filename="../mesh/industreal_gears/industreal_gear_large.obj"/> -->
+                <!-- <mesh filename="/home/quan/Projects/manipulation/IsaacGymEnvs/assets/factory/mesh/factory_gears/factory_gear_large_space_5e-4.obj"/> -->
+            </geometry>
+            <!-- <sdf resolution="256"/> -->
+            <sdf resolution="64"/>
+        </collision>
+    </link>
+</robot>

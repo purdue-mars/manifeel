@@ -1,0 +1,44 @@
+name: visuotactile_dim224
+
+# shape 224x224 for ViT input
+image_shape: &image_shape [3, 256, 256]
+shape_meta: &shape_meta
+  # acceptable types: rgb, low_dim
+  obs:
+    front:
+      shape: *image_shape
+      type: rgb
+    left_tactile_camera_taxim:
+      shape: [3, 224, 224]
+      type: rgb
+    state:
+      shape: [7]
+      type: low_dim
+  action:
+    shape: [7]
+
+env_runner:
+  _target_: manifeel.env_runner.manifeel_runner.ManifeelRunner
+  shape_meta: ${shape_meta}
+  isaacgym_cfg_name: ${isaacgym_cfg_name}
+  n_test: 50
+  n_test_vis: 2 
+  test_start_seed: 100000
+  max_steps: 500
+  n_obs_steps: ${n_obs_steps}
+  n_action_steps: ${n_action_steps}
+  fps: 10
+  past_action: ${past_action_visible}
+  tactile_size: [224, 224]
+  zero_action_dims: null
+
+dataset:
+  _target_: manifeel.dataset.manifeel_dataset.ManifeelDataset
+  shape_meta: ${shape_meta}
+  zarr_path: ${dataset_path}
+  horizon: ${horizon}
+  pad_before: ${eval:'${n_obs_steps}-1'}
+  pad_after: ${eval:'${n_action_steps}-1'}
+  seed: 42
+  val_ratio: 0.02
+  max_train_episodes: 30

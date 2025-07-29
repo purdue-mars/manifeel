@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot name="power_socekt_medium">
+    <link name="power_socekt_medium">
+        <visual>
+            <geometry>
+                <mesh filename="../mesh/TVB_mesh/power_socekt_medium.obj"/>                    
+            </geometry>
+            <material name="LightRed">
+                <color rgba="1 0.3 0.3 1"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="../mesh/TVB_mesh/power_socekt_medium.obj"/>               
+            </geometry>
+            <sdf resolution="128"/>
+        </collision>
+    </link>
+</robot>

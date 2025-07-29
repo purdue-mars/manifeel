@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot name="USB_plug">
+    <link name="USB_plug">
+        <visual>
+            <geometry>
+                <mesh filename="../mesh/TVB_mesh/USB_plug.obj"/>
+            </geometry>
+            <material name="Blue">
+                <color rgba="0.3 0.3 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="../mesh/TVB_mesh/USB_plug.obj"/>
+            </geometry>
+            <sdf resolution="128"/>
+        </collision>
+    </link>
+</robot>
