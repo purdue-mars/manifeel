@@ -366,14 +366,87 @@ After updating your script, start the run:
 
 ## 9. Run ManiFeel Locally (PC or Workstation)
 
-This section mirrors the HPC workflow but runs training directly on a local machine (no Slurm). It assumes you have already built `manifeel.sif` and created the `manifeel` Conda environment.
+This section mirrors the HPC workflow but runs training directly on a local machine without Slurm. It assumes:
 
-### 9.1 Create a local run script
+* `manifeel.sif` has already been built
+* The `manifeel` Conda environment
+* `scripts/run_local.sh` is available
 
-Create a script (for example `scripts/run_local.sh`):
+---
+
+### 9.1 Prepare the Local Script
+
+Grant execution permission to the local script:
 
 ```bash
-mkdir -p scripts
-nano scripts/run_local.sh
 chmod +x scripts/run_local.sh
 ```
+
+You can now launch training directly from your workstation. Logs and checkpoints will be saved under `data/outputs/${EXP_NAME}/${SEED}`. If everything runs correctly, you will see success rate metrics and rollout videos logged to your W&B account.
+
+### 9.2 Running Vision-Only Policy
+To run the vision-only **USB insertion** policy, override the following variables at launch time:
+
+```bash
+TASK_NAME=vistac_pih_multiple_vision_onecam \
+INPUT_TYPE=vision \
+bash scripts/run_local.sh
+```
+
+You do not need to edit the script itself; the environment variables passed before the command override the default values inside `run_local.sh`.
+
+### 9.3 Running Vision + TacRGB Policy
+To run the vision + TacRGB policy, which enables RGB tactile images together with vision input, override:
+
+```bash
+TASK_NAME=vistac_pih_vision_tactile_onecam \
+INPUT_TYPE=vistac \
+bash scripts/run_local.sh
+```
+
+### 9.4 Running Vision + TacFF Policy
+To run the vision + TacFF (tactile force-field) policy, override:
+
+```bash
+TASK_NAME=vision_tacff \
+INPUT_TYPE=tacff \
+bash scripts/run_local.sh
+```
+
+### 9.5 Running Other ManiFeel Tasks Locally
+To run other tasks such as **Ball Sorting**, first prepare the dataset inside `manifeel/data/`, then override the required fields when launching:
+
+```bash
+DATASET_PATH=data/sorting_quan_Aug8 \
+ISAACGYM_CONFIG=isaacgym_config_box_ball_class.yaml \
+ENV=sorting_0923 \
+TASK_NAME=vision_front \
+INPUT_TYPE=vision \
+bash scripts/run_local.sh
+```
+
+For front-camera tasks, valid task names include:
+  * **Vision-only**: `TASK_NAME=vision_front`
+  * **Vision + TacRGB**: `TASK_NAME=vistac_front`
+  * **Vision + TacFF**: `TASK_NAME=vision_tacff_front`
+    
+### 9.6 Important Parameters
+When switching tasks or sensing modalities, the most critical variables are: `DATASET_PATH`, `ISAACGYM_CONFIG`, `TASK_NAME`, `INPUT_TYPE`.
+
+You can also adjust training hyperparameters: `SEED`, `NUM_DEMOS`, `NUM_EPOCH`.
+
+Example:
+```bash
+SEED=44 \
+NUM_DEMOS=50 \
+NUM_EPOCH=1000 \
+TASK_NAME=vision_tacff \
+INPUT_TYPE=tacff \
+bash scripts/run_local.sh
+```    
+
+### 9.7 Summary
+The local workflow is identical to the HPC setup, except:
+  * No Slurm submission or `job_submit.sh`
+  * Direct execution via bash `scripts/run_local.sh`
+  * All sensing configurations are controlled by overriding environment variables at launch time
