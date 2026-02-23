@@ -60,8 +60,8 @@ fi
 # -------------------------
 # Run inside Apptainer
 # -------------------------
-apptainer exec --nv "${REPO_ROOT}/${CONTAINER_FILE}" bash -lc "
-  source ~/.bashrc
+apptainer exec --nv --cleanenv --env LD_PRELOAD= "${REPO_ROOT}/${CONTAINER_FILE}" bash -ic "
+  set -e
   conda activate manifeel
   export LD_LIBRARY_PATH=\${CONDA_PREFIX}/lib:\${LD_LIBRARY_PATH}
   cd '${REPO_ROOT}'

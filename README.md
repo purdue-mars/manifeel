@@ -100,6 +100,8 @@ The repository includes Apptainer definition file `manifeel.def`. From the root 
 apptainer build manifeel.sif manifeel.def
 ```
 
+You can also download the prebuilt `manifeel.sif` Apptainer image from the following link: [Download manifeel.sif](https://drive.google.com/file/d/1MGMfEA7EnhgfbnHF9moOPPLHyEZowxfC/view?usp=sharing)
+
 You can then try running the container with:
 
 ```bash
