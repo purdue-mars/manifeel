@@ -1,2 +1,379 @@
 # ManiFeel
-ManiFeel is a reproducible and extensible benchmarking platform for studying and evaluating visuotactile policies for contact-rich robotic manipulation.
+
+ManiFeel is a benchmarking and learning platform for supervised visuotactile policy learning. It provides a comprehensive collection of visuotactile manipulation tasks and modular learning pipelines that include sensing modality configurations, tactile encoders, and policy heads. Built on IsaacGym/TacSL, a simulator for GelSight tactile sensors, the platform supports systematic studies and fair comparisons of supervised policies for contact-rich and visually-degraded manipulation tasks with the integration of visual and tactile sensing.
+
+---
+
+## 1. Install Miniforge3 to install ManiFeel virtual environment
+Download and install Miniforge3.
+
+```bash
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+```
+
+```bash
+bash Miniforge3-Linux-x86_64.sh
+```
+
+---
+
+## 2. Setup TacSL with IsaacGym environments
+
+To use the [TacSL](https://github.com/isaac-sim/IsaacGymEnvs/blob/tacsl/isaacgymenvs/tacsl_sensors/install/tacsl_setup.md) module within the **deprecated** Isaac Gym simulator, follow these instructions:
+
+• **Create a Python 3.8 environment**, for example using a conda virtual environment:
+
+```bash
+conda create --name manifeel python==3.8
+```
+
+• **Download the TacSL specific Isaac Gym binary** from [here](https://drive.google.com/file/d/1FHs1tf3QajvYb11UkLaLcDD9THL-C0G5/view) and install it inside the `manifeel` environment:
+
+```bash
+tar -xvzf IsaacGym_Preview_TacSL_Package.tar.gz
+conda activate manifeel
+pip install -e IsaacGym_Preview_TacSL_Package/isaacgym/python/
+```
+
+• **Clone a ManiFeel fork of TacSL-branch IsaacGymEnvs** from this [repository](https://github.com/quan-luu/manifeel-isaacgymenvs) and install it inside the `manifeel` environment. If you have an issue with accessing the [repository](https://github.com/quan-luu/manifeel-isaacgymenvs), please contact me at <luu15@purdue.edu>
+
+```bash
+git clone https://github.com/quan-luu/manifeel-isaacgymenvs.git
+cd manifeel-isaacgymenvs
+git checkout manifeel-tacff
+pip install -e .
+```
+
+---
+
+## 3. Clone Diffusion Policy
+• Clone the official Diffusion Policy codebase and install it inside the `manifeel` environment.
+
+```bash
+git clone https://github.com/real-stanford/diffusion_policy.git
+cd ./diffusion_policy/
+pip install -e .
+```
+
+---
+
+## 4. Clone the ManiFeel codebase
+• Clone our [ManiFeel](https://github.com/purdue-mars/manifeel.git) codebase and install it inside the `manifeel` environment.
+
+```bash
+git clone https://github.com/purdue-mars/manifeel.git
+cd ./manifeel/
+pip install -e .
+```
+
+• Install the following additional dependecies into `manifeel` environment.
+
+```bash
+pip install wandb==0.12.21 dill==0.3.9 tqdm==4.67.1 av==12.3.0 numpy==1.23.3 \
+opencv-python==4.10.0.84 zarr==2.16.1 einops==0.4.1 huggingface-hub==0.25.0 \
+diffusers==0.11.1 pandas==2.0.3 numba==0.56.4 rtree==1.3.0
+```
+
+---
+
+## 6. Download ManiFeel dataset
+
+Download and unzip the ManiFeel dataset for your target task from [here](https://purdue0-my.sharepoint.com/:f:/g/personal/luu15_purdue_edu/IgClDSeuVGAKR4nlaok2yv2QAaOTl1FiHtebNThmTxuWi5U?e=s6z0jX) and place it inside the `manifeel/data` directory of the `manifeel` repository. If the `data` directory does not exist, please create it.
+
+If you cannot access the [dataset](https://purdue0-my.sharepoint.com/:f:/g/personal/luu15_purdue_edu/IgClDSeuVGAKR4nlaok2yv2QAaOTl1FiHtebNThmTxuWi5U?e=s6z0jX), please contact Quan at <luu15@purdue.edu>.
+
+---
+
+## 7. Setup Apptainer for Training
+
+To ensure a consistent and reproducible environment across clusters, workstations, and local PCs, we provide an Apptainer-based setup for ManiFeel. System configurations and dependency versions may vary across machines, which can lead to compatibility issues.
+
+Apptainer allows ManiFeel to run inside a controlled Ubuntu-based container with all required dependencies pre-defined, simplifying setup and improving portability.
+
+Please follow the steps below to configure the containerized training environment.
+
+---
+
+The repository includes Apptainer definition file `manifeel.def`. From the root directory of the repository, build the Apptainer image (`manifeel.sif`):
+
+```bash
+apptainer build manifeel.sif manifeel.def
+```
+
+You can then try running the container with:
+
+```bash
+apptainer exec --nv manifeel.sif bash
+```
+
+This will drop you into a bash shell inside the ManiFeel compatible Ubuntu-based Apptainer environment.
+
+Then, run the following commands inside the Apptainer environment to verify that everything is working correctly:
+
+```bash
+source ~/.bashrc
+conda activate manifeel
+export LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:${LD_LIBRARY_PATH}
+python -c "from isaacgym import gymtorch"
+```
+If the `gymtorch` library builds and imports correctly (that is, no errors appear), you can exit the Apptainer environment:
+
+```bash
+exit
+```
+
+---
+
+## 8. ManiFeel Run on HPC
+
+Once the ManiFeel environment and Apptainer container have been correctly set up, you can run training for any ManiFeel task.  
+As an example, this section shows how to train a **vision-only Diffusion Policy** for the **USB insertion** task, i.e., [usb_quan_Aug05](https://purdue0-my.sharepoint.com/:u:/g/personal/luu15_purdue_edu/IQCdNkl_s-74RYTJNMFSpBr-AewG5Dzp4pAsq6NNBEAp_aU?e=97e4OR). Make sure that the ManiFeel demo dataset for USB insertion has already been downloaded and placed in `manifeel/data/usb_quan_Aug05`:
+
+---
+
+### 8.1 Creating the Slurm Submission Script
+
+To run ManiFeel training on the cluster, you need a Slurm job script.  
+Create a file named `job_submit.sh`:
+
+```bash
+touch job_submit.sh
+```
+
+Paste the following script into it:
+
+> **Important:**  
+> Before using the job script below, update the following fields:
+> 
+> • Searh for `[user]` in the script file and replace `[user]` with your own cluster username.  
+> • Ensure that `CONTAINER_FILE` correctly points to where you stored your `manifeel.sif` file
+>   ```
+>   CONTAINER_FILE=/scratch/gilbreth/[user]/manifeel.sif
+>   ```  
+> • Confirm that the `cd` command correctly points to your `manifeel` repository path, matching the actual location of your `manifeel` repo on the cluster.
+>   ```
+>   cd /scratch/gilbreth/[user]/Projects/manifeel
+>   ```  
+
+
+```bash
+#!/bin/bash
+
+SEED=44      
+                     
+NUM_DEMOS=50
+NUM_EPOCH=1000
+DATASET_PATH=data/usb_quan_Aug05
+ISAACGYM_CONFIG="isaacgym_config_usb.yaml"
+ENV="usb_wrist_0805"
+LOG_NAME="dp_usb_tacff"
+TASK_NAME=vistac_pih_multiple_vision_onecam
+INPUT_TYPE="vision"
+EXP_NAME="${INPUT_TYPE}_${ENV}_${NUM_DEMOS}"  
+
+JOB_NAME="${EXP_NAME}_${SEED}" # The name of the Slurm job to monitor 
+
+CONTAINER_FILE=/scratch/gilbreth/[user]/manifeel.sif
+
+cat <<EOT > job_script_${JOB_NAME}.sh
+#!/bin/bash
+#SBATCH --job-name=${JOB_NAME}
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+#SBATCH --account=shey
+#SBATCH --gres=gpu:1
+#SBATCH --partition=a30
+#SBATCH --mem=24G
+#SBATCH --qos=normal
+#SBATCH --cpus-per-task=8
+#SBATCH --time=8:00:00
+
+# Run the commands inside the Apptainer container
+apptainer exec --nv ${CONTAINER_FILE} bash -c "
+    source ~/.bashrc
+    conda activate manifeel
+    cd /scratch/gilbreth/[user]/Projects/manifeel
+    python train.py \
+        --config-name=train_diffusion_workspace.yaml \
+        task=${TASK_NAME} \
+        exp_name=${EXP_NAME} \
+        dataset_path=${DATASET_PATH} \
+        isaacgym_cfg_name=${ISAACGYM_CONFIG} \
+        training.seed=${SEED} \
+        training.num_epochs=${NUM_EPOCH} \
+        task.dataset.max_train_episodes=${NUM_DEMOS} \
+        hydra.run.dir=data/outputs/${EXP_NAME}/${SEED} \
+        logging.project=${LOG_NAME} \
+"
+EOT
+
+# Infinite loop to monitor and resubmit the job
+while true; do
+    # Check if the job is currently running
+    JOB_ID=$(squeue --name=$JOB_NAME --noheader --format=%A)
+
+    if [ -z "$JOB_ID" ]; then
+        # If no job with the specified name is running, resubmit the job
+        echo "Job $JOB_NAME is not running. Resubmitting..."
+        # Submit the dynamically created script
+        sbatch job_script_${JOB_NAME}.sh
+
+        # Wait a few seconds to avoid rapid resubmission
+        sleep 10
+    else
+        # Output a message indicating the job is still running
+        echo "Job $JOB_NAME is still running (Job ID: $JOB_ID)."
+    fi
+
+    # Wait for a specified interval before checking the job status again
+    sleep 30
+done
+```
+
+---
+
+### 8.2 Submitting the Training Job
+
+Once the script is ready, grant the run permission
+
+```bash
+chmod +x job_submit.sh
+```
+
+then, submit it using:
+
+```bash
+./job_submit.sh
+```
+
+Slurm will schedule your job, and logs will appear in the `logs/` directory.
+
+If everything runs correctly, you will see the success rate and selected simulation rollouts logged to your W&B account.
+
+---
+
+### 8.3 Running Vision + TacRGB Policy
+
+To run the vision+tacRGB policy of the USB insertion policy, create a new copy of the bash script file `job_submit.sh` and/or modify the following two fields in your `job_submit.sh` script:
+
+```bash
+TASK_NAME=vistac_pih_vision_tactile_onecam
+INPUT_TYPE="vistac"
+```
+
+After updating, submit the script file:
+
+```bash
+./job_submit.sh
+```
+
+---
+
+### 8.4 Running Vision + TacFF Policy
+
+To run the vision+tacFF (tactile force-field) policy of the USB insertion policy, create a new copy of the bash script file `job_submit.sh` and/or modify the following two fields in your `job_submit.sh` script:
+
+```bash
+TASK_NAME=vision_tacff
+INPUT_TYPE="tacff"
+```
+
+Also update the Hydra config by adding `policy.obs_encoder.imagenet_norm=True` to the `train` Python command in your `job_submit.sh` script, as shown below:
+
+```bash
+python train.py \
+    --config-name=train_diffusion_workspace.yaml \
+    task=${TASK_NAME} \
+    exp_name=${EXP_NAME} \
+    dataset_path=${DATASET_PATH} \
+    isaacgym_cfg_name=${ISAACGYM_CONFIG} \
+    policy.obs_encoder.imagenet_norm=True \
+    training.seed=${SEED} \
+    training.num_epochs=${NUM_EPOCH} \
+    task.dataset.max_train_episodes=${NUM_DEMOS} \
+    hydra.run.dir=data/outputs/${EXP_NAME}/${SEED} \
+    logging.project=${LOG_NAME} \
+```
+
+After updating, submit the script file:
+
+```bash
+./job_submit.sh
+```
+
+### 8.5 Run Other ManiFeel Tasks
+
+You can run any ManiFeel task, such as **Ball Sorting**, by preparing the dataset and updating your `job_submit.sh` script.  
+
+First, download and unzip the demo dataset [sorting_quan_Aug8](https://purdue0-my.sharepoint.com/:u:/g/personal/luu15_purdue_edu/IQCu_CPr28MjQ5OF01Gnvki_ASxxCfp_NP5ZKH3ZMxuwFhg?e=fbX1N7), then place the extracted folder inside the `manifeel/data` directory.
+
+Next, create a new copy of `job_submit.sh` or modify your existing one by updating the following fields:
+
+```bash
+DATASET_PATH=data/sorting_quan_Aug8
+ISAACGYM_CONFIG="isaacgym_config_box_ball_class.yaml"
+ENV="sorting_0923"
+LOG_NAME="dp_sorting_tacff"
+TASK_NAME=vision_front
+INPUT_TYPE="vision"
+```
+
+For example, your training command may look like:
+
+```bash
+python train.py \
+    --config-name=train_diffusion_workspace.yaml \
+    task=${TASK_NAME} \
+    exp_name=${EXP_NAME} \
+    dataset_path=${DATASET_PATH} \
+    isaacgym_cfg_name=${ISAACGYM_CONFIG} \
+    training.seed=${SEED} \
+    training.num_epochs=${NUM_EPOCH} \
+    task.shape_meta.action.shape="[7]" \
+    task.dataset.max_train_episodes=${NUM_DEMOS} \
+    hydra.run.dir=data/outputs/${EXP_NAME}/${SEED} \
+    logging.project=${LOG_NAME}
+```
+
+> **Note:**  
+> You can modify `TASK_NAME` and `INPUT_TYPE` to match the sensing configuration you want to test  
+> (vision-only, vision+tacRGB, or vision+tacFF).  
+> For example, in the Ball Sorting task, which uses the **front camera** instead of a wrist camera, the valid task names are:  
+> - `TASK_NAME=vision_front` for vision-only  
+> - `TASK_NAME=vistac_front` for vision+tacRGB  
+> - `TASK_NAME=vision_tacff_front` for vision+tacFF  
+>
+> Tasks such as **Ball Sorting**, **Object Search**, **Bulb Installation**, and **Nut-Bolt Threading** require gripper control and therefore use a **7 dimensional action space**. In these cases, ensure that  
+> ```
+> task.shape_meta.action.shape="[7]"
+> ```  
+> is included in your `python train.py` command.
+
+After updating your script, start the run:
+
+```bash
+./job_submit.sh
+```
+
+> **Important:**  
+> Among the parameters in `job_submit.sh`, the most critical ones to update when switching tasks or sensing modalities are:  
+> `DATASET_PATH`, `ISAACGYM_CONFIG`, and `TASK_NAME`.  
+> Other fields primarily affect file naming and experiment logging.  
+>  
+> You can freely adjust `SEED`, `NUM_DEMOS`, and `NUM_EPOCH` to control the randomness seed, number of demonstrations used for training, and total training epochs.
+
+---
+
+## 9. Run ManiFeel Locally (PC or Workstation)
+
+This section mirrors the HPC workflow but runs training directly on a local machine (no Slurm). It assumes you have already built `manifeel.sif` and created the `manifeel` Conda environment.
+
+### 9.1 Create a local run script
+
+Create a script (for example `scripts/run_local.sh`):
+
+```bash
+mkdir -p scripts
+nano scripts/run_local.sh
+chmod +x scripts/run_local.sh
+```

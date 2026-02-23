@@ -1,0 +1,56 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+
+%labels
+    Author          Quan Luu
+    Version         1.0
+    Description     "Ubuntu 20.04"
+
+%post
+    echo "Updating apt and installing required packages..."
+
+    echo 'tzdata tzdata/Areas select US' | debconf-set-selections
+    echo 'tzdata tzdata/Zones/US select Eastern' | debconf-set-selections
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Make sure we have basic dev tools and any common packages
+    apt-get update && apt-get install -y \
+        build-essential \
+        wget \
+        curl \
+        ca-certificates \
+        libx11-6 \
+        libx11-dev \
+        libxext6 \
+        libxrender1 \
+        libxrandr2 \
+        libxcursor1 \
+        libglu-dev \
+        libglfw3 \
+        libegl1-mesa \
+        libgl1-mesa-dev \
+        freeglut3-dev \
+        xvfb \
+        libusb-1.0-0 \
+        libusb-1.0-0-dev
+
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
+    dpkg -i cuda-keyring_1.0-1_all.deb
+    apt-get update
+    apt-get install -y libnvidia-gl-535
+    apt-get install -y libisl-dev
+    apt-get install -y libglib2.0-0 libglib2.0-dev
+
+    # Clean up
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+
+%environment
+    # Set any environment variables you need at runtime
+    export LC_ALL=C
+    export LANG=C
+
+%runscript
+    echo "Container built successfully. This is the runscript!"
+    exec /bin/bash
