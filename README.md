@@ -192,6 +192,7 @@ cat <<EOT > job_script_${JOB_NAME}.sh
 apptainer exec --nv ${CONTAINER_FILE} bash -c "
     source ~/.bashrc
     conda activate manifeel
+    export LD_LIBRARY_PATH=\${CONDA_PREFIX}/lib:\${LD_LIBRARY_PATH}
     cd /scratch/gilbreth/[user]/Projects/manifeel
     python train.py \
         --config-name=train_diffusion_workspace.yaml \
