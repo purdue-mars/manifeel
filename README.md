@@ -4,79 +4,45 @@ ManiFeel is a benchmarking and learning platform for supervised visuotactile pol
 
 ---
 
-## 1. Install Miniforge3 to install ManiFeel virtual environment
-Download and install Miniforge3.
+## 1. Installation
 
-```bash
-wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
-```
+ManiFeel provides an automated installation script that handles all setup steps.
 
-```bash
-bash Miniforge3-Linux-x86_64.sh
-```
+### Prerequisites
 
----
-
-## 2. Setup TacSL with IsaacGym environments
-
-To use the [TacSL](https://github.com/isaac-sim/IsaacGymEnvs/blob/tacsl/isaacgymenvs/tacsl_sensors/install/tacsl_setup.md) module within the **deprecated** Isaac Gym simulator, follow these instructions:
-
-• **Create a Python 3.8 environment**, for example using a conda virtual environment:
-
-```bash
-conda create --name manifeel python==3.8
-```
-
-• **Download the TacSL specific Isaac Gym binary** from [here](https://drive.google.com/file/d/1FHs1tf3QajvYb11UkLaLcDD9THL-C0G5/view) and install it inside the `manifeel` environment:
+• **Download the TacSL specific Isaac Gym binary** from [here](https://drive.google.com/file/d/13dFRF9EXpzIWaJF2Z6f7BsuPUGQkPE8v/view?usp=sharing) and extract it to the parent directory of the manifeel repository:
 
 ```bash
 tar -xvzf IsaacGym_Preview_TacSL_Package.tar.gz
-conda activate manifeel
-pip install -e IsaacGym_Preview_TacSL_Package/isaacgym/python/
 ```
 
-• **Clone a ManiFeel fork of TacSL-branch IsaacGymEnvs** from this [repository](https://github.com/quan-luu/manifeel-isaacgymenvs) and install it inside the `manifeel` environment. If you have an issue with accessing the [repository](https://github.com/quan-luu/manifeel-isaacgymenvs), please contact me at <luu15@purdue.edu>
-
-```bash
-git clone https://github.com/quan-luu/manifeel-isaacgymenvs.git
-cd manifeel-isaacgymenvs
-git checkout manifeel-tacff
-pip install -e .
+The directory structure should look like:
+```
+parent_directory/
+├── IsaacGym_Preview_TacSL_Package/
+└── manifeel/
 ```
 
----
+### Automated Installation
 
-## 3. Clone Diffusion Policy
-• Clone the official Diffusion Policy codebase and install it inside the `manifeel` environment.
-
-```bash
-git clone https://github.com/real-stanford/diffusion_policy.git
-cd ./diffusion_policy/
-pip install -e .
-```
-
----
-
-## 4. Clone the ManiFeel codebase
-• Clone our [ManiFeel](https://github.com/purdue-mars/manifeel.git) codebase and install it inside the `manifeel` environment.
+Clone the ManiFeel repository and run the installation script:
 
 ```bash
 git clone https://github.com/purdue-mars/manifeel.git
-cd ./manifeel/
-pip install -e .
+cd manifeel
+bash install.sh
 ```
 
-• Install the following additional dependecies into `manifeel` environment.
-
-```bash
-pip install wandb==0.12.21 dill==0.3.9 tqdm==4.67.1 av==12.3.0 numpy==1.23.3 \
-opencv-python==4.10.0.84 zarr==2.16.1 einops==0.4.1 huggingface-hub==0.25.0 \
-diffusers==0.11.1 pandas==2.0.3 numba==0.56.4 rtree==1.3.0
-```
-
+The installation script will:
+- Check for conda/mamba, and install Miniforge3 if not found
+- Create a Python 3.8 environment named `manifeel`
+- Install IsaacGym TacSL
+- Clone and install manifeel-isaacgymenvs (TacSL fork)
+- Clone and install Diffusion Policy
+- Install ManiFeel and all dependencies
 ---
 
-## 6. Download ManiFeel dataset
+## 2. Download ManiFeel dataset
 
 Download and unzip the ManiFeel dataset for your target task from [here](https://purdue0-my.sharepoint.com/:f:/g/personal/luu15_purdue_edu/IgClDSeuVGAKR4nlaok2yv2QAaOTl1FiHtebNThmTxuWi5U?e=s6z0jX) and place it inside the `manifeel/data` directory of the `manifeel` repository. If the `data` directory does not exist, please create it.
 
@@ -84,7 +50,7 @@ If you cannot access the [dataset](https://purdue0-my.sharepoint.com/:f:/g/perso
 
 ---
 
-## 7. Setup Apptainer for Training
+## 3. Setup Apptainer for Training
 
 To ensure a consistent and reproducible environment across clusters, workstations, and local PCs, we provide an Apptainer-based setup for ManiFeel. System configurations and dependency versions may vary across machines, which can lead to compatibility issues.
 
@@ -126,14 +92,14 @@ exit
 
 ---
 
-## 8. ManiFeel Run on HPC
+## 4. ManiFeel Run on HPC
 
 Once the ManiFeel environment and Apptainer container have been correctly set up, you can run training for any ManiFeel task.  
 As an example, this section shows how to train a **vision-only Diffusion Policy** for the **USB insertion** task, i.e., [usb_quan_Aug05](https://purdue0-my.sharepoint.com/:u:/g/personal/luu15_purdue_edu/IQCdNkl_s-74RYTJNMFSpBr-AewG5Dzp4pAsq6NNBEAp_aU?e=97e4OR). Make sure that the ManiFeel demo dataset for USB insertion has already been downloaded and placed in `manifeel/data/usb_quan_Aug05`:
 
 ---
 
-### 8.1 Creating the Slurm Submission Script
+### 4.1 Creating the Slurm Submission Script
 
 To run ManiFeel training on the cluster, you need a Slurm job script.  
 Create a file named `job_submit.sh`:
@@ -235,7 +201,7 @@ done
 
 ---
 
-### 8.2 Submitting the Training Job
+### 4.2 Submitting the Training Job
 
 Once the script is ready, grant the run permission
 
@@ -255,7 +221,7 @@ If everything runs correctly, you will see the success rate and selected simulat
 
 ---
 
-### 8.3 Running Vision + TacRGB Policy
+### 4.3 Running Vision + TacRGB Policy
 
 To run the vision+tacRGB policy of the USB insertion policy, create a new copy of the bash script file `job_submit.sh` and/or modify the following two fields in your `job_submit.sh` script:
 
@@ -272,7 +238,7 @@ After updating, submit the script file:
 
 ---
 
-### 8.4 Running Vision + TacFF Policy
+### 4.4 Running Vision + TacFF Policy
 
 To run the vision+tacFF (tactile force-field) policy of the USB insertion policy, create a new copy of the bash script file `job_submit.sh` and/or modify the following two fields in your `job_submit.sh` script:
 
@@ -304,7 +270,7 @@ After updating, submit the script file:
 ./job_submit.sh
 ```
 
-### 8.5 Run Other ManiFeel Tasks
+### 4.5 Run Other ManiFeel Tasks
 
 You can run any ManiFeel task, such as **Ball Sorting**, by preparing the dataset and updating your `job_submit.sh` script.  
 
@@ -367,7 +333,7 @@ After updating your script, start the run:
 
 ---
 
-## 9. Run ManiFeel Locally (PC or Workstation)
+## 5. Run ManiFeel Locally (PC or Workstation)
 
 This section mirrors the HPC workflow but runs training directly on a local machine without Slurm. It assumes:
 
@@ -377,7 +343,7 @@ This section mirrors the HPC workflow but runs training directly on a local mach
 
 ---
 
-### 9.1 Prepare the Local Script
+### 5.1 Prepare the Local Script
 
 Grant execution permission to the local script:
 
@@ -387,7 +353,7 @@ chmod +x scripts/run_local.sh
 
 You can now launch training directly from your workstation. Logs and checkpoints will be saved under `data/outputs/${EXP_NAME}/${SEED}`. If everything runs correctly, you will see success rate metrics and rollout videos logged to your W&B account.
 
-### 9.2 Running Vision-Only Policy
+### 5.2 Running Vision-Only Policy
 To run the vision-only **USB insertion** policy, override the following variables at launch time:
 
 ```bash
@@ -398,7 +364,7 @@ bash scripts/run_local.sh
 
 You do not need to edit the script itself; the environment variables passed before the command override the default values inside `run_local.sh`.
 
-### 9.3 Running Vision + TacRGB Policy
+### 5.3 Running Vision + TacRGB Policy
 To run the vision + TacRGB policy, which enables RGB tactile images together with vision input, override:
 
 ```bash
@@ -407,7 +373,7 @@ INPUT_TYPE=vistac \
 bash scripts/run_local.sh
 ```
 
-### 9.4 Running Vision + TacFF Policy
+### 5.4 Running Vision + TacFF Policy
 To run the vision + TacFF (tactile force-field) policy, override:
 
 ```bash
@@ -416,7 +382,7 @@ INPUT_TYPE=tacff \
 bash scripts/run_local.sh
 ```
 
-### 9.5 Running Other ManiFeel Tasks Locally
+### 5.5 Running Other ManiFeel Tasks Locally
 To run other tasks such as **Ball Sorting**, first prepare the dataset inside `manifeel/data/`, then override the required fields when launching:
 
 ```bash
@@ -433,7 +399,7 @@ For front-camera tasks, valid task names include:
   * **Vision + TacRGB**: `TASK_NAME=vistac_front`
   * **Vision + TacFF**: `TASK_NAME=vision_tacff_front`
     
-### 9.6 Important Parameters
+### 5.6 Important Parameters
 When switching tasks or sensing modalities, the most critical variables are: `DATASET_PATH`, `ISAACGYM_CONFIG`, `TASK_NAME`, `INPUT_TYPE`.
 
 You can also adjust training hyperparameters: `SEED`, `NUM_DEMOS`, `NUM_EPOCH`.
@@ -448,7 +414,7 @@ INPUT_TYPE=tacff \
 bash scripts/run_local.sh
 ```    
 
-### 9.7 Summary
+### 5.7 Summary
 The local workflow is identical to the HPC setup, except:
   * No Slurm submission or `job_submit.sh`
   * Direct execution via bash `scripts/run_local.sh`

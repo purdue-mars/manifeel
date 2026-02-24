@@ -1,0 +1,30 @@
+name: ManiFeel Main Build
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - '**'
+  schedule:
+    - cron: "0 6 * * 1"  # 6 AM every Monday
+
+jobs:
+  build_and_test:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-22.04
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run install.sh
+        env:
+          CI: "true"
+        shell: bash -l {0}
+        run: |
+          bash install.sh
