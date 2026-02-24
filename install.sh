@@ -43,6 +43,7 @@ CONDA_BASE=$($CONDA_CMD info --base)
 
 # Function to prompt the user for the conda environment installation path.
 # The default is <conda_base>/envs/manifeel. Press Enter to accept it.
+# In CI mode (CI=true), the default is used automatically without prompting.
 get_conda_env_path() {
     local default_path="$CONDA_BASE/envs/manifeel"
 
@@ -51,12 +52,17 @@ get_conda_env_path() {
     echo "Conda Environment Path"
     echo "=========================================="
     echo "Default environment path: $default_path"
-    read -rp "Enter conda environment path (press Enter to use default): " user_path
 
-    if [ -z "$user_path" ]; then
+    if [ "${CI:-false}" = "true" ]; then
         CONDA_ENV_PATH="$default_path"
+        echo "CI mode: using default path"
     else
-        CONDA_ENV_PATH="$user_path"
+        read -rp "Enter conda environment path (press Enter to use default): " user_path
+        if [ -z "$user_path" ]; then
+            CONDA_ENV_PATH="$default_path"
+        else
+            CONDA_ENV_PATH="$user_path"
+        fi
     fi
 
     echo "✓ Using environment path: $CONDA_ENV_PATH"
