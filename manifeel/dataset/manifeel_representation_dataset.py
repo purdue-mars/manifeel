@@ -43,14 +43,8 @@ class ManifeelRepresentationDataset(BaseImageDataset):
         print("rgb_keys", rgb_keys)
         print("lowdim_keys", lowdim_keys)
 
-        #TODO: Remove "_img" suffix from the camera view in upcoming demo data
-        data_keys = rgb_keys + lowdim_keys
-
-        
-        print("data_keys", data_keys)
-    
-        self.replay_buffer = ReplayBuffer.copy_from_path(
-            zarr_path, keys=data_keys)
+        self.replay_buffer = ReplayBuffer.create_from_path(
+            zarr_path, mode='r')
 
         val_mask = get_val_mask(
             n_episodes=self.replay_buffer.n_episodes, 
