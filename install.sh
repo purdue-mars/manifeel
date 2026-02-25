@@ -120,7 +120,6 @@ elif [ ! -d "$PARENT_DIR/manifeel-isaacgymenvs" ]; then
     cd "$PARENT_DIR"
     git clone https://github.com/purdue-mars/manifeel-isaacgymenvs.git
     cd manifeel-isaacgymenvs
-    git checkout manifeel-tacff
     pip install -e .
 else
     echo "✓ manifeel-isaacgymenvs already exists"
