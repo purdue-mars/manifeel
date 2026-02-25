@@ -44,9 +44,7 @@ The installation script will:
 
 ## 2. Download ManiFeel dataset
 
-Download and unzip the ManiFeel dataset for your target task from [here](https://purdue0-my.sharepoint.com/:f:/g/personal/luu15_purdue_edu/IgClDSeuVGAKR4nlaok2yv2QAaOTl1FiHtebNThmTxuWi5U?e=s6z0jX) and place it inside the `manifeel/data` directory of the `manifeel` repository. If the `data` directory does not exist, please create it.
-
-If you cannot access the [dataset](https://purdue0-my.sharepoint.com/:f:/g/personal/luu15_purdue_edu/IgClDSeuVGAKR4nlaok2yv2QAaOTl1FiHtebNThmTxuWi5U?e=s6z0jX), please contact Quan at <luu15@purdue.edu>.
+Download and unzip the ManiFeel dataset for your target task from [here](https://huggingface.co/datasets/purdue-mars/manifeel/tree/main/data) and place it inside the `manifeel/data` directory of the `manifeel` repository. If the `data` directory does not exist, please create it.
 
 ---
 
@@ -95,7 +93,7 @@ exit
 ## 4. ManiFeel Run on Cluster with Slurm
 
 Once the ManiFeel environment and Apptainer container have been correctly set up, you can run training for any ManiFeel task.  
-As an example, this section shows how to train a **vision-only Diffusion Policy** for the **USB insertion** task, i.e., [usb_quan_Aug05](https://purdue0-my.sharepoint.com/:u:/g/personal/luu15_purdue_edu/IQCdNkl_s-74RYTJNMFSpBr-AewG5Dzp4pAsq6NNBEAp_aU?e=97e4OR). Make sure that the ManiFeel demo dataset for USB insertion has already been downloaded and placed in `manifeel/data/usb_quan_Aug05`:
+As an example, this section shows how to train a **vision-only Diffusion Policy** for the **USB insertion** task, i.e., its dataset `usb_quan_Aug05` could be found under [this HuggingFace link](https://huggingface.co/datasets/purdue-mars/manifeel/tree/main/data). Make sure that the ManiFeel demo dataset for USB insertion has already been downloaded and placed in `manifeel/data/usb_quan_Aug05`:
 
 ---
 
@@ -274,7 +272,7 @@ After updating, submit the script file:
 
 You can run any ManiFeel task, such as **Ball Sorting**, by preparing the dataset and updating your `job_submit.sh` script.  
 
-First, download and unzip the demo dataset [sorting_quan_Aug8](https://purdue0-my.sharepoint.com/:u:/g/personal/luu15_purdue_edu/IQCu_CPr28MjQ5OF01Gnvki_ASxxCfp_NP5ZKH3ZMxuwFhg?e=fbX1N7), then place the extracted folder inside the `manifeel/data` directory.
+First, download and unzip the demo dataset `sorting_quan_Aug8` under this [HuggingFace link](https://huggingface.co/datasets/purdue-mars/manifeel/tree/main/data), then place the extracted folder inside the `manifeel/data` directory.
 
 Next, create a new copy of `job_submit.sh` or modify your existing one by updating the following fields:
 
