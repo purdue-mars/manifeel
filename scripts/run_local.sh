@@ -11,7 +11,7 @@ NUM_EPOCH=${NUM_EPOCH:-1000}
 DATASET_PATH=${DATASET_PATH:-data/usb_quan_Aug05}
 ISAACGYM_CONFIG=${ISAACGYM_CONFIG:-isaacgym_config_usb.yaml}
 
-TASK_NAME=${TASK_NAME:-vistac_pih_multiple_vision_onecam}
+TASK_NAME=${TASK_NAME:-vision_wrist}  # vision_wrist | vistac_wrist | visff_wrist | vision_front | vistac_front | visff_front
 INPUT_TYPE=${INPUT_TYPE:-vision}   # vision | vistac | tacff
 ENV_TAG=${ENV_TAG:-usb_wrist_0805}
 LOG_NAME=${LOG_NAME:-dp_usb_tacff}
