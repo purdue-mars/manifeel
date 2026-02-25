@@ -39,7 +39,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 
 # Get conda base path early so we can use it as the default env path
-CONDA_BASE=$($CONDA_CMD info --base)
+CONDA_BASE="$("$CONDA_CMD" info --base 2>/dev/null | tail -n 1 | awk '{print $NF}')"
 
 # Function to prompt the user for the Miniforge/conda home directory.
 # The environment is always named "manifeel" and will be created at
