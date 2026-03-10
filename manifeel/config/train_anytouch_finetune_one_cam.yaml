@@ -82,7 +82,7 @@ policy:
       name: resnet18
       weights: null
     resize_shape: null
-    crop_shape: [230, 230]
+    crop_shape: null
     # constant center crop
     random_crop: True
     use_group_norm: True

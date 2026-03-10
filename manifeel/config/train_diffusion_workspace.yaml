@@ -46,7 +46,6 @@ policy:
       weights: null
     resize_shape: null
     crop_shape: null
-    # crop_shape: [230, 230]
     # constant center crop
     random_crop: True
     use_group_norm: True
