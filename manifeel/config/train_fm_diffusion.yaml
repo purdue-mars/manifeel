@@ -57,14 +57,13 @@ policy:
   n_action_steps: ${eval:'${n_action_steps}+${n_latency_steps}'}
   n_obs_steps: ${n_obs_steps}
   num_inference_steps: 100
-  # crop_shape: null
   diffusion_step_embed_dim: 128
   enc_n_hidden: 128
   down_dims: [512, 1024, 2048]
   kernel_size: 5
   n_groups: 8
   encoder_output_dim: 256
-  crop_shape: [230, 230]
+  crop_shape: null
   use_pc_color: False
   obs_as_global_cond: ${obs_as_global_cond}
 
