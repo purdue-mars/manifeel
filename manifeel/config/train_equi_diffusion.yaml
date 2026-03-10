@@ -44,7 +44,6 @@ policy:
   num_inference_steps: 100
   resize_shape: [3, 256, 256]
   crop_shape: [230, 230]
-  # crop_shape: null
   diffusion_step_embed_dim: 128
   enc_n_hidden: 128
   down_dims: [512, 1024, 2048]
