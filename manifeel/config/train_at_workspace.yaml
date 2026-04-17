@@ -1,0 +1,110 @@
+defaults:
+  - task: real_peel_image_gelsight_emb_at_24fps
+  - at: at_peel
+  - _self_
+
+name: train_vae
+_target_: reactive_diffusion_policy.workspace.train_at_workspace.TrainATWorkspace
+
+task_name: ${task.name}
+shape_meta: ${task.shape_meta}
+exp_name: "default"
+
+horizon: ${at.horizon}
+n_obs_steps: ${at.n_obs_steps}
+n_latency_steps: 0
+dataset_obs_steps: ${eval:'${n_obs_steps}*${at.dataset_obs_temporal_downsample_ratio}'} # for latent diffusion policy with 24fps
+dataset_obs_temporal_downsample_ratio: ${at.dataset_obs_temporal_downsample_ratio}
+n_action_steps: ${eval:'${horizon}-${dataset_obs_steps}+1'}
+
+policy:
+  _target_: reactive_diffusion_policy.model.vae.model.VAE
+  shape_meta: ${task.shape_meta}
+  horizon: ${horizon}
+  n_latent_dims: ${at.policy.n_latent_dims}
+  mlp_layer_num: ${at.policy.mlp_layer_num}
+  use_conv_encoder: ${at.policy.use_conv_encoder}
+  conv_latent_dims: ${at.policy.conv_latent_dims}
+  conv_layer_num: ${at.policy.conv_layer_num}
+  use_rnn_decoder: ${at.policy.use_rnn_decoder}
+  rnn_latent_dims: ${at.policy.rnn_latent_dims}
+  rnn_layer_num: ${at.policy.rnn_layer_num}
+  kl_multiplier: ${at.policy.kl_multiplier}
+  n_embed: ${at.policy.n_embed}
+  # ==============
+  use_vq: ${at.policy.use_vq}
+  vqvae_groups: ${at.policy.vqvae_groups}
+  eval: ${at.policy.eval}
+  act_scale: ${at.policy.act_scale}
+
+dataloader:
+  batch_size: 64
+  num_workers: 4
+  shuffle: True
+  pin_memory: True
+  persistent_workers: True
+
+val_dataloader:
+  batch_size: 64
+  num_workers: 4
+  shuffle: False
+  pin_memory: True
+  persistent_workers: True
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+
+training:
+  device: "cuda:0"
+  seed: 42
+  debug: False
+  resume: True
+  # optimization
+  lr_scheduler: cosine
+  lr_warmup_steps: 100
+  num_epochs: 601
+  gradient_accumulate_every: 1
+  # EMA destroys performance when used with BatchNorm
+  # replace BatchNorm with GroupNorm.
+  use_ema: False
+  freeze_encoder: False
+  # training loop control
+  # in epochs
+  rollout_every: -1 # dummy
+  checkpoint_every: 10
+  val_every: 1
+  sample_every: -1 # dummy
+  # steps per epoch
+  max_train_steps: null
+  max_val_steps: null
+  # misc
+  tqdm_interval_sec: 1.0
+
+logging:
+  project: at
+  resume: True
+  mode: online
+  name: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}
+  tags: ["${name}", "${task_name}", "${exp_name}"]
+  id: null
+  group: null
+
+checkpoint:
+  topk:
+    monitor_key: train_loss
+    mode: min
+    k: 1
+    format_str: 'epoch={epoch:04d}-train_loss={train_loss:.6f}.ckpt'
+  save_last_ckpt: True
+  save_last_snapshot: False
+
+hydra:
+  job:
+    override_dirname: ${name}
+  run:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  sweep:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+    subdir: ${hydra.job.num}
