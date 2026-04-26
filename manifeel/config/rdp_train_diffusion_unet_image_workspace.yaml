@@ -1,0 +1,130 @@
+defaults:
+  - task: rdp_usb_tactile
+  - _self_
+
+name: rdp_train_diffusion_unet_usb
+_target_: manifeel.workspace.rdp_train_diffusion_unet_image_workspace.TrainDiffusionUnetImageWorkspace
+
+task_name: ${task.name}
+shape_meta: ${task.shape_meta}
+exp_name: "default"
+
+horizon: 16
+n_obs_steps: 2
+n_latency_steps: 0
+dataset_obs_steps: ${n_obs_steps}
+n_action_steps: ${eval:'${horizon}-${dataset_obs_steps}+1'}
+past_action_visible: False
+isaacgym_cfg_name: isaacgym_config_usb
+keypoint_visible_rate: 1.0
+obs_as_global_cond: True
+
+policy:
+  _target_: manifeel.policy.rdp_diffusion_unet_image_policy.DiffusionUnetImagePolicy
+  shape_meta: ${shape_meta}
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddim.DDIMScheduler
+    num_train_timesteps: 100
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    clip_sample: True
+    set_alpha_to_one: True
+    steps_offset: 0
+    prediction_type: epsilon
+  obs_encoder:
+    _target_: manifeel.model.vision.multi_image_obs_encoder.MultiImageObsEncoder
+    shape_meta: ${shape_meta}
+    rgb_model:
+      _target_: manifeel.model.vision.model_getter.get_resnet
+      name: resnet18
+      weights: null
+    resize_shape: [240, 320]
+    random_transforms:
+      - type: RandomCrop
+        ratio: 0.90
+    use_group_norm: True
+    share_rgb_model: False
+    imagenet_norm: True
+  horizon: ${horizon}
+  n_action_steps: ${n_action_steps}
+  n_obs_steps: ${n_obs_steps}
+  num_inference_steps: 100
+  obs_as_global_cond: ${obs_as_global_cond}
+  diffusion_step_embed_dim: 128
+  down_dims: [512, 1024, 2048]
+  kernel_size: 5
+  n_groups: 8
+  cond_predict_scale: True
+
+ema:
+  _target_: diffusion_policy.model.diffusion.ema_model.EMAModel
+  update_after_step: 0
+  inv_gamma: 1.0
+  power: 0.75
+  min_value: 0.0
+  max_value: 0.9999
+
+dataloader:
+  batch_size: 64
+  num_workers: 8
+  shuffle: True
+  pin_memory: True
+  persistent_workers: False
+
+val_dataloader:
+  batch_size: 64
+  num_workers: 8
+  shuffle: False
+  pin_memory: True
+  persistent_workers: False
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1.0e-4
+  betas: [0.95, 0.999]
+  eps: 1.0e-8
+  weight_decay: 1.0e-6
+  encoder_weight_decay: 1.0e-6
+
+training:
+  device: "cuda:0"
+  seed: 42
+  debug: False
+  resume: True
+  lr_scheduler: cosine
+  lr_warmup_steps: 500
+  num_epochs: 3000
+  gradient_accumulate_every: 1
+  use_ema: True
+  freeze_encoder: False
+  layer_decay: 1.0
+  encoder_lr_coefficient: 1.0
+  rollout_every: 50
+  checkpoint_every: 50
+  val_every: 1
+  sample_every: 5
+  max_train_steps: null
+  max_val_steps: null
+  tqdm_interval_sec: 1.0
+
+logging:
+  project: manifeel_rdp
+  resume: True
+  mode: online
+  name: ${name}
+  tags: ["rdp", "diffusion_unet", "usb"]
+  id: null
+
+checkpoint:
+  topk:
+    monitor_key: train_loss
+    mode: min
+    k: 3
+    format_str: "epoch={epoch:04d}-train_loss={train_loss:.3f}.ckpt"
+  save_last_ckpt: True
+  save_last_snapshot: False
+
+hydra:
+  run:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}
