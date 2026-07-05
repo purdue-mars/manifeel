@@ -151,7 +151,7 @@ pip install -e .
 
 # Install additional dependencies
 echo "Installing additional dependencies..."
-pip install wandb==0.12.21 dill==0.3.9 tqdm==4.67.1 av==12.3.0 numpy==1.23.3 \
+pip install wandb==0.28.0 dill==0.3.9 tqdm==4.67.1 av==12.3.0 numpy==1.23.3 \
 opencv-python==4.10.0.84 zarr==2.16.1 einops==0.4.1 huggingface-hub==0.25.0 \
 diffusers==0.11.1 pandas==2.0.3 numba==0.56.4 rtree==1.3.0
 
